@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">ML_Ch</string>
+
+    <string name="cargando">Cargando..</string>
+    <string name="hint">ofertas</string>
+
+    <string name="error_message">Se ha producido un error, intente nuevamente mas tarde.</string>
+    <string name="ok">Aceptar</string>
+    <string name="error">Error</string>
+
+</resources>
