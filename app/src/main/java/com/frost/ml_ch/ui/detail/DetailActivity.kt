@@ -5,14 +5,15 @@ import android.content.Intent
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.view.View
 import androidx.activity.viewModels
-import androidx.annotation.RequiresApi
 import com.frost.ml_ch.R
 import com.frost.ml_ch.databinding.ActivityDetailBinding
 import com.frost.ml_ch.extensions.showAlert
 import com.frost.ml_ch.extensions.showToast
 import com.frost.ml_ch.model.Item
-import com.frost.ml_ch.ui.utils.LoadingDialog
+import com.frost.ml_ch.ui.utils.LoadState
 import com.squareup.picasso.Picasso
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -21,7 +22,6 @@ class DetailActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityDetailBinding
     private val viewModel by viewModels<DetailViewModel>()
-    private var loadingDialog = LoadingDialog()
 
     companion object {
         const val itemKey = "item"
@@ -42,11 +42,26 @@ class DetailActivity : AppCompatActivity() {
     }
 
     private fun subscribeToLiveData() {
+        viewModel.loadStateLiveData.observe(this) { handleLoadingState(it) }
         viewModel.itemLiveData.observe(this) { handleItem(it) }
     }
 
+    private fun handleLoadingState(loadState: LoadState) {
+        when (loadState) {
+            LoadState.Loading -> {
+                binding.shimmerLayout.visibility = View.VISIBLE
+                binding.normalLayout.visibility = View.GONE
+            }
+            LoadState.Success -> {
+                binding.shimmerLayout.visibility = View.GONE
+                binding.normalLayout.visibility = View.VISIBLE
+            }
+            else -> showAlert()
+        }
+
+    }
+
     private fun handleItem(item: Item?) {
-        loadingDialog.dismiss()
         item
             ?.let { showItem(it) }
             ?:run { showAlert() }
@@ -61,17 +76,14 @@ class DetailActivity : AppCompatActivity() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun callItem() {
-        loadingDialog.show(supportFragmentManager)
-        val selectedItem = getItem()
-        selectedItem?.let { viewModel.emulateCallToGetItem(it) }
+        getItem()?.let { viewModel.setItem(it) }
+        viewModel.item
+            ?.let { Handler().postDelayed( { viewModel.emulateCallToGetItem(it) }, 3000) }
             ?:run { showToast(this, getString(R.string.error)) }
     }
-    
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    private fun getItem() =
-        if (Build.VERSION.CODENAME == Build.VERSION_CODES.TIRAMISU.toString())
-            intent.getParcelableExtra(itemKey, Item::class.java)
-        else intent.getParcelableExtra<Item>(itemKey)
+
+    private fun getItem() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+        intent.getSerializableExtra(itemKey, Item::class.java)
+    else intent.getSerializableExtra(itemKey) as Item
 }
