@@ -29,13 +29,9 @@ class HomeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        callItems(getString(R.string.hint))
+        setAdapterAndViewModel()
         setSearchField()
         subscribeToLiveData()
-    }
-
-    private fun callItems(search: String) {
-        viewModel.getItems(search)
     }
 
     private fun setSearchField(){
@@ -56,7 +52,7 @@ class HomeActivity : AppCompatActivity() {
     private fun checkIfFocus(view: View) {
         if (!binding.searchEditText.text.isNullOrEmpty()) {
             val searchValue = binding.searchEditText.text
-            callItems(searchValue.toString().replace(" ", "%"))
+            viewModel.getItems(searchValue.toString().replace(" ", "%"))
             binding.searchEditText.text!!.clear()
             hide(view)
         }
@@ -84,16 +80,16 @@ class HomeActivity : AppCompatActivity() {
 
     private fun handleItems(itemList: List<Item>?) {
         itemList
-            ?.let { setAdapter(it) }
+            ?.let { adapter.updateItems(it) }
             ?:run { showToast(this, getString(R.string.error)) }
     }
 
-    private fun setAdapter(itemList: List<Item>) {
+    private fun setAdapterAndViewModel() {
+        viewModel.onCreate()
         with(binding){
             itemsrecyclerView.layoutManager = GridLayoutManager(this@HomeActivity, 2)
             itemsrecyclerView.adapter = adapter
         }
-        adapter.updateItems(itemList)
         adapter.onItemClickCallback = { DetailActivity.start(this, it) }
     }
 }

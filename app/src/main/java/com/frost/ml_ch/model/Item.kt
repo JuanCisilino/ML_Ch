@@ -18,7 +18,3 @@ data class Item(
         return oldItem == newItem
     }
 }
-
-data class Result(
-    val results : List<Item> = listOf()
-)
