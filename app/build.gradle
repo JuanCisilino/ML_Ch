@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId "com.frost.ml_ch"
-        minSdkVersion 19
+        minSdkVersion 21
         multiDexEnabled true
         targetSdk 33
         versionCode 1

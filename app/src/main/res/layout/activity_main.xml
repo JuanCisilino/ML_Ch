@@ -37,7 +37,7 @@
 
     <GridLayout
         android:id="@+id/gridLayout"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
         android:orientation="vertical"
         android:columnCount="2"

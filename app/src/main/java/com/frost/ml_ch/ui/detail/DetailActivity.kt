@@ -37,8 +37,22 @@ class DetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        setToolbar()
         callItem()
         subscribeToLiveData()
+    }
+
+    private fun setToolbar(){
+        val toolbar = binding.toolbar
+        toolbar.title = "Detalle"
+        toolbar.setNavigationIcon(R.drawable.baseline_arrow_back_24)
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return true
     }
 
     private fun subscribeToLiveData() {
